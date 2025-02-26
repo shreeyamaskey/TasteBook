@@ -1,5 +1,6 @@
 # Build artifacts
 /build
+**/build/
 *.class
 *.jar
 *.apk
@@ -15,3 +16,14 @@
 
 # Local properties
 local.properties
+
+.externalNativeBuild
+.cxx
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
+
+.kotlin
