@@ -1,0 +1,17 @@
+# Build artifacts
+/build
+*.class
+*.jar
+*.apk
+*.dex
+
+# IDE-specific files
+.idea/
+*.iml
+.DS_Store
+
+# Gradle files
+.gradle/
+
+# Local properties
+local.properties
