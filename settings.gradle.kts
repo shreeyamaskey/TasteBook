@@ -1,4 +1,4 @@
-rootProject.name = "CMP-Bookpedia"
+rootProject.name = "TasteBook"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
