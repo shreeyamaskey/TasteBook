@@ -6,6 +6,6 @@ import com.sm.tastebook.di.initKoin
 
 fun MainViewController() = ComposeUIViewController(
     configure = {
-        initKoin()
+        //initKoin()
     }
 ) { App() }

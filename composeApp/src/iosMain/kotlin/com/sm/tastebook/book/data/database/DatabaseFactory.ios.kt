@@ -2,19 +2,17 @@
 
 package com.sm.tastebook.book.data.database
 
-import androidx.room.Room
-import androidx.room.RoomDatabase
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 
-actual class DatabaseFactory {
-    actual fun create(): RoomDatabase.Builder<FavoriteBookDatabase> {
-        val dbFile = documentDirectory() + "/${FavoriteBookDatabase.DB_NAME}"
-        return Room.databaseBuilder<FavoriteBookDatabase>(
-            name = dbFile
-        )
+class DatabaseFactory {
+    fun create() {
+        // Since FavoriteBookDatabase is gone, we'll remove that reference.
+        val dbFile = documentDirectory() + "/mydatabase.db"
+        // If you need to use Room on Android, that code should be in your Android source set.
+        println("Creating database at: $dbFile")
     }
 
     private fun documentDirectory(): String {
