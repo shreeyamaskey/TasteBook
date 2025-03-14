@@ -20,15 +20,37 @@ import org.koin.compose.viewmodel.koinViewModel
 
 import com.sm.tastebook.presentation.user.SignUpScreen
 import com.sm.tastebook.presentation.user.SignUpViewModel
+import com.sm.tastebook.presentation.LandingScreen
 
 
 @Composable
 @Preview
 fun App() {
-    val signUpViewModel = SignUpViewModel()
+    val navController = rememberNavController()
 
-    // Show sign-up screen
-    SignUpScreen(viewModel = signUpViewModel)
+    NavHost(
+        navController = navController,
+        startDestination = "landing"
+    ) {
+        // Landing screen route
+        composable("landing") {
+            LandingScreen(
+                onSignUpClick = {
+                    navController.navigate("signup")
+                },
+                onLogInClick = {
+                    // If you want a login screen, navigate there. For now, do nothing or create a "login" route.
+                }
+            )
+        }
+
+        // Sign-up screen route
+        composable("signup") {
+            // If you're using the SignUpViewModel from earlier:
+            val signUpViewModel = SignUpViewModel()
+            SignUpScreen(viewModel = signUpViewModel)
+        }
+    }
 //    MaterialTheme {
 //        val navController = rememberNavController()
 //        NavHost(
