@@ -54,7 +54,7 @@ fun App() {
 
             composable("login") {
                 val loginViewModel = LoginViewModel()
-                LoginScreenContent (
+                LoginScreenWithBackground (
                     viewModel = loginViewModel,
                     onBackClick = {
                         // Pop back to the previous screen (the landing page)

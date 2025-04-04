@@ -6,9 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val TasteBookColorScheme = lightColorScheme(
-    background = Color(0xA08EA5),
-    primary = Color(0x082D10),
-    secondary = Color(0x894827),
+    background = Color(0xA08EA5FF),
+    primary = Color(0x082D10FF),
+    secondary = Color(0x894827FF),
 )
 
 @Composable

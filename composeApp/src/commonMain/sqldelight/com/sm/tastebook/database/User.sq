@@ -1,0 +1,20 @@
+CREATE TABLE User (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+);
+
+insertUser:
+INSERT INTO User(username, email, password, created_at)
+VALUES (?, ?, ?, ?);
+
+getUserByEmail:
+SELECT * FROM User WHERE email = ?;
+
+getUserByUsername:
+SELECT * FROM User WHERE username = ?;
+
+deleteUser:
+DELETE FROM User WHERE id = ?;

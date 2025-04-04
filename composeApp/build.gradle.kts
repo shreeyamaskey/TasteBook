@@ -10,6 +10,8 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
 //    alias(libs.plugins.ksp)
 //    alias(libs.plugins.room)
+    // Add SQLDelight plugin
+    id("app.cash.sqldelight") version "2.0.1"
 }
 
 kotlin {
@@ -114,5 +116,39 @@ android {
 }
 
 dependencies {
+    implementation(libs.play.services.maps)
     debugImplementation(compose.uiTooling)
+}
+
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                // Add SQLDelight dependencies
+                implementation("app.cash.sqldelight:runtime:2.0.1")
+                implementation("app.cash.sqldelight:coroutines-extensions:2.0.1")
+            }
+        }
+        
+        androidMain {
+            dependencies {
+                implementation("app.cash.sqldelight:android-driver:2.0.1")
+            }
+        }
+        
+        iosMain {
+            dependencies {
+                implementation("app.cash.sqldelight:native-driver:2.0.1")
+            }
+        }
+    }
+}
+
+// Add SQLDelight configuration
+sqldelight {
+    databases {
+        create("TasteBookDatabase") {
+            packageName.set("com.sm.tastebook.database")
+        }
+    }
 }
