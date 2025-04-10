@@ -1,5 +1,7 @@
 CREATE TABLE User (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL,
     username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
@@ -7,8 +9,8 @@ CREATE TABLE User (
 );
 
 insertUser:
-INSERT INTO User(username, email, password, created_at)
-VALUES (?, ?, ?, ?);
+INSERT INTO User(firstName, lastName, username, email, password, created_at)
+VALUES (?, ?, ?, ?, ?, ?);
 
 getUserByEmail:
 SELECT * FROM User WHERE email = ?;

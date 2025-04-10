@@ -1,11 +1,13 @@
 package com.sm.tastebook.presentation.user
 
+import com.sm.tastebook.domain.user.repository.UserRepository
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class LoginViewModel {
-
+class LoginViewModel{
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
 
@@ -42,5 +44,7 @@ class LoginViewModel {
 data class LoginUiState(
     val username: String = "",
     val password: String = "",
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isLoading: Boolean = false,
+    val isLoggedIn: Boolean = false
 )

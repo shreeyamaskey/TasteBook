@@ -10,10 +10,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+// import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import tastebook.composeapp.generated.resources.Res
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
+import tastebook.composeapp.generated.resources.squiggly_line
+
+import org.jetbrains.compose.resources.painterResource
 /**
  * Global background composable that applies:
  * 1. A solid background color (from your Material 3 theme),
@@ -32,11 +40,13 @@ fun TasteBookBackground(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         )
+        
         // 2) Tiled overlay image
-//        TiledBackground(
-//            painter = painterResource(Res.drawable.squiggly_lines), // Generated resource; ensure the file is named correctly.
-//            modifier = Modifier.fillMaxSize()
-//        )
+        TiledBackground(
+            painter = painterResource(Res.drawable.squiggly_line),
+            modifier = Modifier.fillMaxSize()
+        )
+        
         // 3) Foreground content
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -48,31 +58,31 @@ fun TasteBookBackground(
 /**
  * This composable tiles a given [painter] across its full area using a Canvas.
  */
-//@Composable
-//fun TiledBackground(
-//    painter: Painter,
-//    modifier: Modifier = Modifier
-//) {
-//    // Use the painter's intrinsic size as the tile dimensions.
-//    // Note: If intrinsicSize is unspecified, you might need to provide a default size.
-//    val tileWidth = if (painter.intrinsicSize.width.isFinite()) painter.intrinsicSize.width else 100f
-//    val tileHeight = if (painter.intrinsicSize.height.isFinite()) painter.intrinsicSize.height else 100f
-//
-//    BoxWithConstraints(modifier = modifier) {
-//        Canvas(modifier = Modifier.fillMaxSize()) {
-//            var y = 0f
-//            while (y < size.height) {
-//                var x = 0f
-//                while (x < size.width) {
-//                    drawPainter(
-//                        painter = painter,
-//                        topLeft = Offset(x, y),
-//                        size = Size(tileWidth, tileHeight)
-//                    )
-//                    x += tileWidth
-//                }
-//                y += tileHeight
-//            }
-//        }
-//    }
-//}
+@Composable
+fun TiledBackground(
+    painter: Painter,
+    modifier: Modifier = Modifier
+) {
+    val tileSize = 320.dp
+    val spacing = 190.dp
+    
+    BoxWithConstraints(modifier = modifier) {
+        val rows = (maxHeight / spacing).toInt() + 1
+        val columns = (maxWidth / spacing).toInt() + 1
+        
+        // Start from a negative offset to remove the left padding
+        for (row in 0 until rows) {
+            for (column in -1 until columns) {  // Start from -1 to extend beyond left edge
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(tileSize)
+                        .offset(x = (column * spacing.value).dp, y = (row * spacing.value).dp)
+                        .alpha(0.5f),
+                    contentScale = ContentScale.Fit
+                )
+            }
+        }
+    }
+}

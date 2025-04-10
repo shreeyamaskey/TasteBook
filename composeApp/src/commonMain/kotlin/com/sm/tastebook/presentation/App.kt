@@ -1,5 +1,6 @@
 package com.sm.tastebook.app
 
+import android.content.Context
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.MaterialTheme
@@ -7,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
@@ -23,8 +25,10 @@ import com.sm.tastebook.presentation.user.SignUpViewModel
 import com.sm.tastebook.presentation.LandingScreen
 import com.sm.tastebook.presentation.theme.TasteBookTheme
 import com.sm.tastebook.presentation.user.LoginScreenWithBackground
-import com.sm.tastebook.presentation.user.LoginScreenContent
 import com.sm.tastebook.presentation.user.LoginViewModel
+import com.sm.tastebook.presentation.user.WelcomeScreen
+
+import androidx.activity.compose.BackHandler
 
 
 @Composable
@@ -32,12 +36,13 @@ import com.sm.tastebook.presentation.user.LoginViewModel
 fun App() {
     TasteBookTheme {
         val navController = rememberNavController()
+        // Create a shared ViewModel instance that can be accessed across screens
+        val signUpViewModel = remember { SignUpViewModel() }
 
         NavHost(
             navController = navController,
             startDestination = "landing"
         ) {
-            // Landing screen route
             composable("landing") {
                 LandingScreen(
                     onSignUpClick = { navController.navigate("signup") },
@@ -45,21 +50,35 @@ fun App() {
                 )
             }
 
-            // Sign-up screen route
             composable("signup") {
-                // If you're using the SignUpViewModel from earlier:
-                val signUpViewModel = SignUpViewModel()
-                SignUpScreen(viewModel = signUpViewModel)
+                SignUpScreen(
+                    viewModel = signUpViewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onSignUpSuccess = { firstName ->
+                        // Clear the back stack when navigating to welcome screen
+                        navController.navigate("welcome") {
+                            // Remove all destinations from the back stack
+                            popUpTo("landing") { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            composable("welcome") {
+                WelcomeScreen(firstName = signUpViewModel.getStoredFirstName())
+                
+                // Optional: Handle system back press in the welcome screen
+                BackHandler {
+                    // Either do nothing or show a dialog asking if they want to exit the app
+                    // For now, we'll just do nothing to prevent back navigation
+                }
             }
 
             composable("login") {
                 val loginViewModel = LoginViewModel()
-                LoginScreenWithBackground (
+                LoginScreenWithBackground(
                     viewModel = loginViewModel,
-                    onBackClick = {
-                        // Pop back to the previous screen (the landing page)
-                        navController.navigateUp()
-                    }
+                    onBackClick = { navController.navigateUp() }
                 )
             }
         }

@@ -12,7 +12,9 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SignUpScreen(
-    viewModel: SignUpViewModel
+    viewModel: SignUpViewModel,
+    onBackClick: () -> Unit,
+    onSignUpSuccess: (String) -> Unit  // Add navigation callback with firstName
 ) {
     // Collect UI state from the ViewModel
     val uiState by viewModel.uiState.collectAsState()
@@ -74,7 +76,21 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { viewModel.onSignUpClick() },
+            onClick = { 
+                // Check if fields are empty and handle navigation
+                if (uiState.firstName.isNotBlank() && 
+                    uiState.lastName.isNotBlank() && 
+                    uiState.username.isNotBlank() && 
+                    uiState.email.isNotBlank() && 
+                    uiState.password.isNotBlank() && 
+                    uiState.confirmPassword.isNotBlank()) {
+                    
+                    viewModel.saveFirstName(uiState.firstName)
+                    onSignUpSuccess(uiState.firstName)
+                } else {
+                    viewModel.onEmptyFieldsError()
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Make an account")

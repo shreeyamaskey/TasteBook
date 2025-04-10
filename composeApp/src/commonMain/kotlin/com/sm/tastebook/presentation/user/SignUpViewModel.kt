@@ -1,12 +1,28 @@
 package com.sm.tastebook.presentation.user
 
+import androidx.lifecycle.ViewModel
+import com.sm.tastebook.domain.user.model.User
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 
-class SignUpViewModel {
+class SignUpViewModel() : ViewModel() {
 
-    // UI state is stored in a data class
+    fun onEmptyFieldsError() {
+        _uiState.update { it.copy(errorMessage = "Please fill in all fields") }
+    }
+
+    fun saveFirstName(name: String) {
+        // Store the first name in the UI state
+        _uiState.update { it.copy(firstName = name) }
+    }
+
+    fun getStoredFirstName(): String = _uiState.value.firstName
+
+
     private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState: StateFlow<SignUpUiState> = _uiState
 
@@ -70,7 +86,6 @@ class SignUpViewModel {
     }
 }
 
-// Simple UI state data class
 data class SignUpUiState(
     val firstName: String = "",
     val lastName: String = "",
@@ -78,9 +93,10 @@ data class SignUpUiState(
     val email: String = "",
     val password: String = "",
     val confirmPassword: String = "",
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isLoading: Boolean = false,
+    val isSignedUp: Boolean = false
 )
-
 data class ValidationResult(
     val isValid: Boolean,
     val errorMessage: String? = null

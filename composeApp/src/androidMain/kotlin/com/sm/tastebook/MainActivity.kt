@@ -8,9 +8,9 @@ import com.sm.tastebook.app.App
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        
         setContent {
-            App()
+            App() 
         }
     }
 }

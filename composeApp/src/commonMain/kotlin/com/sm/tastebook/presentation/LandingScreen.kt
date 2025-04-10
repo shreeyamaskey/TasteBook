@@ -2,6 +2,7 @@ package com.sm.tastebook.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -10,76 +11,119 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.sm.tastebook.presentation.theme.TasteBookBackground
 import com.sm.tastebook.presentation.theme.TasteBookTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
+@Preview
 @Composable
 fun LandingScreen(
     onSignUpClick: () -> Unit,
-    onLogInClick: () -> Unit
+    onLogInClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    TasteBookTheme {
-        // Use your global background that uses your purple color (as defined in your theme)
-        TasteBookBackground {
-            Column(
+    TasteBookBackground {
+        Column(
+            modifier = modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // Green header with app title
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .fillMaxWidth()
+                    .background(color = MaterialTheme.colorScheme.primary)
+                    .padding(vertical = 24.dp),
+                contentAlignment = Alignment.Center
             ) {
-                // App title and welcome message
                 Text(
                     text = "TasteBook",
-                    style = MaterialTheme.typography.headlineMedium
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Welcome to sharing recipes",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.height(24.dp))
+            }
 
-                // Sign Up Button Box (custom background and text color)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.primaryContainer)
-                        .padding(8.dp)
+            // Spacer to push content to center
+            Spacer(modifier = Modifier.weight(1f))
+            
+            // Green box containing all content
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 45.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary
+                        // Removed the RoundedCornerShape to make edges sharp
+                    )
+                    .padding(horizontal = 10.dp, vertical = 130.dp) // Increased vertical padding
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
+                    // Welcome text
+                    Text(
+                        text = "Welcome to\nsharing recipes",
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(bottom = 32.dp)
+                    )
+
+                    // Sign up button
                     Button(
                         onClick = onSignUpClick,
+                        modifier = Modifier
+                            .width(200.dp)
+                            .padding(bottom = 16.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
+                            containerColor = MaterialTheme.colorScheme.secondary
                         ),
-                        modifier = Modifier.fillMaxWidth()
+                        shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text(text = "Sign up")
+                        Text(
+                            text = "Sign up",
+                            style = MaterialTheme.typography.headlineSmall, // Increased font size
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
                     }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Log In Button Box (custom background and text color)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
-                        .padding(8.dp)
-                ) {
-                    TextButton(
-                        onClick = onLogInClick,
-                        colors = ButtonDefaults.textButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary,
-                            contentColor = MaterialTheme.colorScheme.onSecondary
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = "Log in")
+                    
+                    // Divider
+                    Box(
+                         modifier = Modifier
+                            .width(220.dp) // Make divider shorter horizontally
+                            .height(1.dp)
+                            .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f))
+                            .padding(vertical = 8.dp)
+                    )
+                    
+                    // Login section
+                    Text(
+                        text = "Have a profile already?",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                    
+                    TextButton(onClick = onLogInClick) {
+                        Text(
+                            text = "Log in",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                textDecoration = TextDecoration.Underline
+                            ),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 }
             }
+            
+            // Spacer to push content to center
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
 }
