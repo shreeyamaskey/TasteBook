@@ -4,40 +4,64 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import io.ktor.http.*
+import org.koin.ktor.ext.inject
+import server.com.dao.user.UserDao
+import server.com.models.AuthResponse
+
+private val jwtAudience = System.getenv("jwt.audience")
+private val jwtIssuer = System.getenv("jwt.domain")
+private val jwtSecret = System.getenv("jwt.secret")
+
+private const val CLAIM = "email"
 
 fun Application.configureSecurity() {
+    val userDao by inject<UserDao>()
+
     authentication {
-        basic(name = "myauth1") {
-            realm = "Ktor Server"
-            validate { credentials ->
-                if (credentials.name == credentials.password) {
-                    UserIdPrincipal(credentials.name)
+        jwt {
+            verifier(
+                JWT
+                    .require(Algorithm.HMAC256(jwtSecret))
+                    .withAudience(jwtAudience)
+                    .withIssuer(jwtIssuer)
+                    .build()
+            )
+            validate { credential ->
+                if (credential.payload.getClaim(CLAIM).asString() != null) {
+                    val userExists = userDao.findByEmail(email = credential.payload.getClaim(CLAIM).asString()) != null
+                    val isValidAudience = credential.payload.audience.contains(jwtAudience)
+                    if (userExists && isValidAudience) {
+                        JWTPrincipal(payload = credential.payload)
+                    } else {
+                        null
+                    }
                 } else {
                     null
                 }
             }
-        }
 
-        form(name = "myauth2") {
-            userParamName = "user"
-            passwordParamName = "password"
-            challenge {
-                /**/
+            challenge { _, _ ->
+                call.respond(
+                    status = HttpStatusCode.Unauthorized,
+                    message = AuthResponse(
+                        errorMessage = "Token is not valid or has expired"
+                    )
+                )
             }
         }
     }
-    routing {
-        authenticate("myauth1") {
-            get("/protected/route/basic") {
-                val principal = call.principal<UserIdPrincipal>()!!
-                call.respondText("Hello ${principal.name}")
-            }
-        }
-        authenticate("myauth2") {
-            get("/protected/route/form") {
-                val principal = call.principal<UserIdPrincipal>()!!
-                call.respondText("Hello ${principal.name}")
-            }
-        }
-    }
+}
+
+fun generateToken(email: String): String {
+    return JWT.create()
+        .withAudience(jwtAudience)
+        .withIssuer(jwtIssuer)
+        .withClaim(CLAIM, email)
+        //.withExpiresAt()
+        .sign(Algorithm.HMAC256(jwtSecret))
 }
