@@ -1,11 +1,11 @@
 package com.sm.tastebook.domain.user.model
 
-data class User(
-    val id: Long? = null,
+data class UserAuthResultData(
+    val id: Int,
     val firstName: String,
     val lastName: String,
     val username: String,
     val email: String,
-    val password: String,
-    val createdAt: Long
+    val avatar: String? = null,
+    val token: String
 )

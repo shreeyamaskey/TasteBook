@@ -7,6 +7,7 @@ import server.com.models.AuthResponse
 import server.com.models.AuthResponseData
 import server.com.models.LogInParams
 import server.com.models.SignUpParams
+import server.com.models.UpdateUserParams
 import server.com.security.hashPassword
 import server.com.util.Response
 
@@ -40,6 +41,7 @@ class UserRepositoryImpl(
                             firstName = insertedUser.firstName,
                             lastName = insertedUser.lastName,
                             username = insertedUser.username,
+                            email = insertedUser.email,
                             avatar = insertedUser.imageUrl,
                             token = generateToken(params.email)
                         )
@@ -70,6 +72,7 @@ class UserRepositoryImpl(
                             firstName = user.firstName,
                             lastName = user.lastName,
                             username = user.username,
+                            email = user.email,
                             token = generateToken(params.email)
                         )
                     )
@@ -79,6 +82,66 @@ class UserRepositoryImpl(
                     code = HttpStatusCode.Forbidden,
                     data = AuthResponse(
                         errorMessage = "Invalid, wrong password!"
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun updateUser(id: Int, params: UpdateUserParams): Response<AuthResponse> {
+        val existingUser = userDao.findById(id)
+        
+        return if (existingUser == null) {
+            Response.Error(
+                code = HttpStatusCode.NotFound,
+                data = AuthResponse(
+                    errorMessage = "User not found!"
+                )
+            )
+        } else {
+            // Hash password if it's being updated
+            val hashedPassword = if (params.password != null) {
+                hashPassword(params.password)
+            } else {
+                null
+            }
+            
+            // Check if email is being updated and if it's already in use
+            if (params.email != null && params.email != existingUser.email && userAlreadyExist(params.email)) {
+                return Response.Error(
+                    code = HttpStatusCode.Conflict,
+                    data = AuthResponse(
+                        errorMessage = "A user with this email already exists!"
+                    )
+                )
+            }
+            
+            val updatedUser = userDao.update(
+                id = id,
+                params = params.copy(
+                    password = hashedPassword
+                )
+            )
+            
+            if (updatedUser == null) {
+                Response.Error(
+                    code = HttpStatusCode.InternalServerError,
+                    data = AuthResponse(
+                        errorMessage = "Sorry, your information could not be updated at this time, try later!"
+                    )
+                )
+            } else {
+                Response.Success(
+                    data = AuthResponse(
+                        data = AuthResponseData(
+                            id = updatedUser.id,
+                            firstName = updatedUser.firstName,
+                            lastName = updatedUser.lastName,
+                            username = updatedUser.username,
+                            email = updatedUser.email,
+                            avatar = updatedUser.imageUrl,
+                            token = generateToken(updatedUser.email)
+                        )
                     )
                 )
             }

@@ -24,11 +24,13 @@ import com.sm.tastebook.presentation.user.SignUpScreen
 import com.sm.tastebook.presentation.user.SignUpViewModel
 import com.sm.tastebook.presentation.LandingScreen
 import com.sm.tastebook.presentation.theme.TasteBookTheme
-import com.sm.tastebook.presentation.user.LoginScreenWithBackground
+import com.sm.tastebook.presentation.user.LoginScreen
 import com.sm.tastebook.presentation.user.LoginViewModel
 import com.sm.tastebook.presentation.user.WelcomeScreen
 
 import androidx.activity.compose.BackHandler
+import com.sm.tastebook.domain.user.usecases.LogInUseCase
+import com.sm.tastebook.domain.user.usecases.SignUpUseCase
 
 
 @Composable
@@ -36,8 +38,19 @@ import androidx.activity.compose.BackHandler
 fun App() {
     TasteBookTheme {
         val navController = rememberNavController()
-        // Create a shared ViewModel instance that can be accessed across screens
-        val signUpViewModel = remember { SignUpViewModel() }
+
+        // val signUpUseCase = remember { SignUpUseCase() } 
+        // // Create a shared ViewModel instance that can be accessed across screens
+        // val signUpViewModel = remember { SignUpViewModel(signUpUseCase) }
+
+        // // Add this LaunchedEffect to properly handle navigation
+        // LaunchedEffect(signUpViewModel.uiState.isSignedUp) {
+        //     if (signUpViewModel.uiState.isSignedUp) {
+        //         navController.navigate("welcome") {
+        //             popUpTo("landing") { inclusive = true }
+        //         }
+        //     }
+        // }
 
         NavHost(
             navController = navController,
@@ -51,21 +64,36 @@ fun App() {
             }
 
             composable("signup") {
-                SignUpScreen(
-                    viewModel = signUpViewModel,
-                    onBackClick = { navController.navigateUp() },
-                    onSignUpSuccess = { firstName ->
-                        // Clear the back stack when navigating to welcome screen
+                // Use koinViewModel() instead of manually creating the view model
+                val signUpViewModel: SignUpViewModel = koinViewModel()
+                
+                // Add this LaunchedEffect for navigation
+                LaunchedEffect(signUpViewModel.uiState.isSignedUp) {
+                    if (signUpViewModel.uiState.isSignedUp) {
                         navController.navigate("welcome") {
-                            // Remove all destinations from the back stack
                             popUpTo("landing") { inclusive = true }
                         }
                     }
+                }
+                
+                SignUpScreen(
+                    viewModel = signUpViewModel,
+                    onBackClick = { navController.navigateUp() },
+                    onFirstNameChange = signUpViewModel::onFirstNameChange,
+                    onLastNameChange = signUpViewModel::onLastNameChange,
+                    onUsernameChange = signUpViewModel::onUsernameChange,
+                    onEmailChange = signUpViewModel::onEmailChange,
+                    onPasswordChange = signUpViewModel::onPasswordChange,
+                    onConfirmPasswordChange = signUpViewModel::onConfirmPasswordChange,
+                    onNavigateToHome = {
+                        // This will be handled by the LaunchedEffect above
+                    },
+                    onSignUpClick = signUpViewModel::onSignUpClick
                 )
             }
 
             composable("welcome") {
-                WelcomeScreen(firstName = signUpViewModel.getStoredFirstName())
+                WelcomeScreen(firstName = "b")
                 
                 // Optional: Handle system back press in the welcome screen
                 BackHandler {
@@ -75,76 +103,29 @@ fun App() {
             }
 
             composable("login") {
-                val loginViewModel = LoginViewModel()
-                LoginScreenWithBackground(
+                val loginUseCase = remember { LogInUseCase() }
+                val loginViewModel = remember { LoginViewModel(loginUseCase) }
+                LoginScreen(
                     viewModel = loginViewModel,
-                    onBackClick = { navController.navigateUp() }
+                    onBackClick = { navController.navigateUp() },
+                    onEmailChange = loginViewModel::onEmailChange,
+                    onPasswordChange = loginViewModel::onPasswordChange,
+                    onLoginClick = {
+                        loginViewModel.onLoginClick()
+                        // Navigate to welcome screen on successful login
+                        if (loginViewModel.uiState.isLoggedIn) {
+                            navController.navigate("welcome") {
+                                popUpTo("landing") { inclusive = true }
+                            }
+                        }
+                    },
+                    uiState = loginViewModel.uiState
                 )
             }
         }
     }
 }
-//    MaterialTheme {
-//        val navController = rememberNavController()
-//        NavHost(
-//            navController = navController,
-//            startDestination = Route.BookGraph
-//        ) {
-//            navigation<Route.BookGraph>(
-//                startDestination = Route.BookList
-//            ) {
-//                composable<Route.BookList>(
-//                    exitTransition = { slideOutHorizontally() },
-//                    popEnterTransition = { slideInHorizontally() }
-//                ) {
-//                    val viewModel = koinViewModel<BookListViewModel>()
-//                    val selectedBookViewModel =
-//                        it.sharedKoinViewModel<SelectedBookViewModel>(navController)
-//
-//                    LaunchedEffect(true) {
-//                        selectedBookViewModel.onSelectBook(null)
-//                    }
-//
-//                    BookListScreenRoot(
-//                        viewModel = viewModel,
-//                        onBookClick = { book ->
-//                            selectedBookViewModel.onSelectBook(book)
-//                            navController.navigate(
-//                                Route.BookDetail(book.id)
-//                            )
-//                        }
-//                    )
-//                }
-//                composable<Route.BookDetail>(
-//                    enterTransition = { slideInHorizontally { initialOffset ->
-//                        initialOffset
-//                    } },
-//                    exitTransition = { slideOutHorizontally { initialOffset ->
-//                        initialOffset
-//                    } }
-//                ) {
-//                    val selectedBookViewModel =
-//                        it.sharedKoinViewModel<SelectedBookViewModel>(navController)
-//                    val viewModel = koinViewModel<BookDetailViewModel>()
-//                    val selectedBook by selectedBookViewModel.selectedBook.collectAsStateWithLifecycle()
-//
-//                    LaunchedEffect(selectedBook) {
-//                        selectedBook?.let {
-//                            viewModel.onAction(BookDetailAction.OnSelectedBookChange(it))
-//                        }
-//                    }
-//
-//                    BookDetailScreenRoot(
-//                        viewModel = viewModel,
-//                        onBackClick = {
-//                            navController.navigateUp()
-//                        }
-//                    )
-//                }
-//            }
-//        }
-//
-//    }
+
 
 
 @Composable

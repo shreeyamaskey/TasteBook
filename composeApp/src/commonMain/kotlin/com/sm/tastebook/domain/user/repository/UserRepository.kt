@@ -1,17 +1,23 @@
 package com.sm.tastebook.domain.user.repository
 
-import com.sm.tastebook.domain.user.model.User
+import com.sm.tastebook.domain.user.model.UserAuthResultData
+import com.sm.tastebook.data.common.util.Result
 
-interface UserRepository {
-    // Creates a new user and returns their ID
-    suspend fun insertUser(user: User): Long
+internal interface UserRepository {
+
+    // Inserts the user and returns a result sealed class
+    suspend fun signup(
+        firstName: String,
+        lastName: String,
+        username: String,
+        email: String,
+        password: String
+    ): Result<UserAuthResultData>
     
-    // Finds a user by their email
-    suspend fun getUserByEmail(email: String): User?
-    
-    // Finds a user by their username
-    suspend fun getUserByUsername(username: String): User?
-    
-    // Checks if login credentials are valid
-    suspend fun validateCredentials(username: String, password: String): User?
+    // Log in
+    suspend fun login(
+        email: String,
+        password: String
+    ): Result<UserAuthResultData>
+
 }

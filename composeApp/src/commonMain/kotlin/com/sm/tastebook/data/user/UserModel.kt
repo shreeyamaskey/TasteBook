@@ -1,9 +1,9 @@
-package server.com.models
+package com.sm.tastebook.data.user
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SignUpParams(
+internal data class SignUpRequest(
     val firstName: String,
     val lastName: String,
     val username: String,
@@ -12,29 +12,19 @@ data class SignUpParams(
 )
 
 @Serializable
-data class LogInParams(
+internal data class LogInRequest(
     val email: String,
     val password: String
 )
 
 @Serializable
-data class UpdateUserParams(
-    val firstName: String?= null,
-    val lastName: String? = null,
-    val username: String? = null,
-    val email: String? = null,
-    val password: String? = null,
-    val avatar: String? = null
-)
-
-@Serializable
-data class AuthResponse(
+internal data class AuthResponse(
     val data: AuthResponseData? = null,
     val errorMessage: String? = null
 )
 
 @Serializable
-data class AuthResponseData(
+internal data class AuthResponseData(
     val id: Int,
     val firstName: String,
     val lastName: String,

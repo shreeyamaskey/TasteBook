@@ -42,6 +42,7 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.ktor.client.okhttp)
+
         }
         
         commonMain.dependencies {
@@ -64,19 +65,13 @@ kotlin {
             implementation(libs.bundles.ktor)
             implementation(libs.bundles.coil)
 
-            // Replace Realm with MongoDB KMM
-            // Remove old MongoDB dependencies
-            // implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
-            // implementation("org.litote.kmongo:kmongo-coroutine:4.10.1")
-
-            // Add correct MongoDB Mobile SDK
-//            implementation("io.github.mongodb:mongodb-kotlin-driver:1.9.1")
-//            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
         }
-        
-        
     }
 }
+
+//dependencies {
+//    implementation(libs.androidx.room.runtime.android)
+//}
 
 android {
     namespace = "com.sm.tastebook"

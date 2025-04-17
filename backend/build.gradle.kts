@@ -36,7 +36,8 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jwt-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-config-yaml:$ktor_version")
-    
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
     // Database
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.h2database:h2:$h2Version")
