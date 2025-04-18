@@ -28,6 +28,7 @@ import com.sm.tastebook.presentation.components.TasteBookAppBar
 
 import androidx.activity.compose.BackHandler
 import com.sm.tastebook.domain.user.usecases.LogInUseCase
+import com.sm.tastebook.presentation.components.TasteBookFooter
 
 
 @Composable
@@ -50,10 +51,11 @@ fun App(
                 navController = navController
             )
             
-            // NavHost for screen content
+            // NavHost for screen content - now with weight to push footer to bottom
             NavHost(
                 navController = navController,
-                startDestination = startDestination
+                startDestination = startDestination,
+                modifier = Modifier.weight(1f)
             ) {
                 composable("landing") {
                     LandingScreen(
@@ -130,7 +132,29 @@ fun App(
                     // TODO: Add inventory screen
                 }
 
+                // Add routes for the new screens referenced in the footer
+                composable("saved_recipes") {
+                    // TODO: Implement saved recipes screen
+                }
+                
+                composable("recipe_add") {
+                    // TODO: Implement recipe add screen
+                }
+                
+                composable("recipe_view") {
+                    // TODO: Implement recipe view screen
+                }
+                
+                composable("profile") {
+                    // TODO: Implement profile screen
+                }
             }
+            
+            // Add the Footer at the bottom of the main layout
+            TasteBookFooter(
+                currentRoute = currentRoute,
+                navController = navController
+            )
         }
 
         // This LaunchedEffect has issues - let's fix it
