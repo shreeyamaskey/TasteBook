@@ -88,7 +88,9 @@ fun LandingScreen(
                     ) {
                         Text(
                             text = "Sign up",
-                            style = MaterialTheme.typography.headlineSmall, // Increased font size
+                            style = MaterialTheme.typography.headlineSmall.copy(
+                                fontWeight = FontWeight.Bold  // Add this line to make the text bold
+                            ),
                             color = MaterialTheme.colorScheme.onSecondary
                         )
                     }

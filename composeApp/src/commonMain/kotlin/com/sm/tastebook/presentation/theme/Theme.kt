@@ -7,6 +7,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.darkColorScheme
 
+// Define platform-specific color adjustments
+data class PlatformColors(
+    val primary: Color? = null,
+    val secondary: Color? = null,
+    val background: Color? = null
+)
+
+// This will be implemented differently on each platform
+@Composable
+expect fun getPlatformColors(): PlatformColors
+
 private val LightColorScheme = lightColorScheme(
     background = Color(0xffa08ea5), // Lavender
     primary = Color(0xff082d10),   // Dark green
@@ -34,7 +45,23 @@ fun TasteBookTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val platformColors = getPlatformColors()
+    
+    val colorScheme = if (darkTheme) {
+        val scheme = DarkColorScheme
+        scheme.copy(
+            primary = platformColors.primary ?: scheme.primary,
+            secondary = platformColors.secondary ?: scheme.secondary,
+            background = platformColors.background ?: scheme.background
+        )
+    } else {
+        val scheme = LightColorScheme
+        scheme.copy(
+            primary = platformColors.primary ?: scheme.primary,
+            secondary = platformColors.secondary ?: scheme.secondary,
+            background = platformColors.background ?: scheme.background
+        )
+    }
 
     MaterialTheme(
         colorScheme = colorScheme,

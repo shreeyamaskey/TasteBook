@@ -26,7 +26,7 @@ class SignUpViewModel(
 
     fun onSignUpClick() {
         if(uiState.password != uiState.confirmPassword) {
-            uiState = uiState.copy(errorMessage = "Passwords do not match.")
+            uiState = uiState.copy(errorMessage = "Passwords do not match. Please try again")
             return
         }
         signUp() // Call the use case which will validate further.

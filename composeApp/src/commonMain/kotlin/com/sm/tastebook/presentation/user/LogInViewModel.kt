@@ -48,7 +48,6 @@ class LoginViewModel(
         }
     }
 
-    // This first does a simple empty-check validation and then triggers logIn().
     fun onLoginClick() {
         if (uiState.email.isBlank() || uiState.password.isBlank()) {
             uiState = uiState.copy(errorMessage = "Email and password cannot be empty.")

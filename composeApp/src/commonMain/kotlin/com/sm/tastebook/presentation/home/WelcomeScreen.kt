@@ -1,4 +1,4 @@
-package com.sm.tastebook.presentation.user
+package com.sm.tastebook.presentation.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -13,7 +13,6 @@ import com.sm.tastebook.presentation.theme.TasteBookBackground
 
 @Composable
 fun WelcomeScreen(
-    firstName: String,
     modifier: Modifier = Modifier
 ) {
     TasteBookBackground {
@@ -25,17 +24,13 @@ fun WelcomeScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Welcome to TasteBook,",
+                text = "Welcome to TasteBook",
                 style = MaterialTheme.typography.headlineLarge,
                 textAlign = TextAlign.Center
             )
             
             Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = "Hi $firstName!",
-                fontSize = 24.sp
-            )
+
             
             Spacer(modifier = Modifier.height(24.dp))
             
