@@ -11,7 +11,8 @@ import androidx.compose.material3.darkColorScheme
 data class PlatformColors(
     val primary: Color? = null,
     val secondary: Color? = null,
-    val background: Color? = null
+    val background: Color? = null,
+    val surface: Color?= null
 )
 
 // This will be implemented differently on each platform
@@ -52,14 +53,16 @@ fun TasteBookTheme(
         scheme.copy(
             primary = platformColors.primary ?: scheme.primary,
             secondary = platformColors.secondary ?: scheme.secondary,
-            background = platformColors.background ?: scheme.background
+            background = platformColors.background ?: scheme.background,
+            surface = platformColors.surface ?: scheme.surface
         )
     } else {
         val scheme = LightColorScheme
         scheme.copy(
             primary = platformColors.primary ?: scheme.primary,
             secondary = platformColors.secondary ?: scheme.secondary,
-            background = platformColors.background ?: scheme.background
+            background = platformColors.background ?: scheme.background,
+            surface = platformColors.surface ?: scheme.surface
         )
     }
 

@@ -3,9 +3,12 @@ package com.sm.tastebook.presentation.user
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.datastore.core.DataStore
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sm.tastebook.data.common.datastore.UserSettings
+import com.sm.tastebook.data.common.datastore.toUserSettings
 import com.sm.tastebook.domain.user.model.UserAuthResultData
 import com.sm.tastebook.domain.user.usecases.SignUpUseCase
 
@@ -18,7 +21,8 @@ import com.sm.tastebook.data.common.util.Result
 
 
 class SignUpViewModel(
-    private val signUpUseCase: SignUpUseCase
+    private val signUpUseCase: SignUpUseCase,
+    private val dataStore: DataStore<UserSettings>
 ) : ViewModel() {
 
     var uiState by mutableStateOf(SignUpUiState())
@@ -54,6 +58,9 @@ class SignUpViewModel(
                     }
 
                     is Result.Success -> {
+                        dataStore.updateData {
+                            userAuthResultData.data!!.toUserSettings()
+                        }
                         uiState.copy(
                             isAuthenticating = false,
                             isSignedUp = true

@@ -10,7 +10,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-// import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import tastebook.composeapp.generated.resources.Res
 

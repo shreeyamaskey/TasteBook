@@ -65,6 +65,10 @@ kotlin {
             implementation(libs.bundles.ktor)
             implementation(libs.bundles.coil)
 
+            api(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.androidx.datastore.preferences)
+            implementation(libs.androidx.datastore.preferences.core)
+
         }
     }
 }
