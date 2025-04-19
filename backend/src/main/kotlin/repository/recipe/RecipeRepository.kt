@@ -12,5 +12,7 @@ interface RecipeRepository {
     suspend fun updateRecipe(recipeId: Int, params: UpdateRecipeParams): Response<RecipeResponse>
     suspend fun deleteRecipe(recipeId: Int): Response<Boolean>
     suspend fun saveRecipe(recipeId: Int): Response<Boolean>
-    suspend fun searchRecipes(query: String): Response<List<RecipeResponse>>
+    suspend fun searchRecipes(query: String): Response<List<RecipeResponse>>    
+    suspend fun addRecipeImage(recipeId: Int, imageUrl: String): Response<RecipeResponse>
+    suspend fun deleteRecipeImage(imageId: Int): Response<Boolean>
 }

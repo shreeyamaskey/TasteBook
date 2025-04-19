@@ -21,6 +21,15 @@ object RecipeTable: Table(name = "recipe"){
         get() = PrimaryKey(recipeId)
 }
 
+object RecipeImageTable : Table("recipe_images") {
+    val id = integer("id").autoIncrement()
+    val recipeId = integer("recipe_id").references(RecipeTable.recipeId, onDelete = ReferenceOption.CASCADE)
+    val imageUrl = text("image_url")
+    
+    override val primaryKey: PrimaryKey
+        get() = PrimaryKey(id)
+}
+
 object RecipeIngredientTable : Table("recipe_ingredients") {
     val id = integer("id").autoIncrement()
     val recipeId = integer("recipe_id").references(RecipeTable.recipeId, onDelete = ReferenceOption.CASCADE)
@@ -31,6 +40,13 @@ object RecipeIngredientTable : Table("recipe_ingredients") {
     override val primaryKey: PrimaryKey
         get() = PrimaryKey(id)
 }
+
+@Serializable
+data class RecipeImage(
+    val id: Int,
+    val recipeId: Int,
+    val imageUrl: String
+)
 
 @Serializable
 data class RecipeIngredient(
@@ -51,5 +67,6 @@ data class Recipe(
     val publishedAt: Long,
     val imageUrl: String? = null,
     val savesCount: Int = 0,
-    val ingredients: List<RecipeIngredient> = emptyList()
+    val ingredients: List<RecipeIngredient> = emptyList(),
+    val images: List<RecipeImage> = emptyList()
 )

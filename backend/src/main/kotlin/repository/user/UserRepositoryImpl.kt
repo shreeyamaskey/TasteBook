@@ -43,7 +43,7 @@ class UserRepositoryImpl(
                             username = insertedUser.username,
                             email = insertedUser.email,
                             avatar = insertedUser.imageUrl,
-                            token = generateToken(params.email)
+                            token = generateToken(email = insertedUser.email, userId = insertedUser.id)
                         )
                     )
                 )
@@ -73,7 +73,7 @@ class UserRepositoryImpl(
                             lastName = user.lastName,
                             username = user.username,
                             email = user.email,
-                            token = generateToken(params.email)
+                            token = generateToken(email = user.email, userId = user.id)
                         )
                     )
                 )
@@ -140,7 +140,7 @@ class UserRepositoryImpl(
                             username = updatedUser.username,
                             email = updatedUser.email,
                             avatar = updatedUser.imageUrl,
-                            token = generateToken(updatedUser.email)
+                            token = generateToken(email = updatedUser.email, userId = updatedUser.id)
                         )
                     )
                 )

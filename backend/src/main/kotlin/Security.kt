@@ -4,7 +4,6 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
@@ -17,7 +16,8 @@ private val jwtAudience = System.getenv("jwt.audience")
 private val jwtIssuer = System.getenv("jwt.domain")
 private val jwtSecret = System.getenv("jwt.secret")
 
-private const val CLAIM = "email"
+private const val EMAIL_CLAIM = "email"
+private const val USER_ID_CLAIM = "userId"
 
 fun Application.configureSecurity() {
     val userDao by inject<UserDao>()
@@ -32,8 +32,8 @@ fun Application.configureSecurity() {
                     .build()
             )
             validate { credential ->
-                if (credential.payload.getClaim(CLAIM).asString() != null) {
-                    val userExists = userDao.findByEmail(email = credential.payload.getClaim(CLAIM).asString()) != null
+                if (credential.payload.getClaim(EMAIL_CLAIM).asString() != null) {
+                    val userExists = userDao.findByEmail(email = credential.payload.getClaim(EMAIL_CLAIM).asString()) != null
                     val isValidAudience = credential.payload.audience.contains(jwtAudience)
                     if (userExists && isValidAudience) {
                         JWTPrincipal(payload = credential.payload)
@@ -57,11 +57,12 @@ fun Application.configureSecurity() {
     }
 }
 
-fun generateToken(email: String): String {
+fun generateToken(email: String, userId: Int): String {
     return JWT.create()
         .withAudience(jwtAudience)
         .withIssuer(jwtIssuer)
-        .withClaim(CLAIM, email)
+        .withClaim(EMAIL_CLAIM, email)
+        .withClaim(USER_ID_CLAIM, userId)
         //.withExpiresAt()
         .sign(Algorithm.HMAC256(jwtSecret))
 }

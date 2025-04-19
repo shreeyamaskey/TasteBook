@@ -63,7 +63,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
 
             implementation(libs.bundles.ktor)
-            implementation(libs.bundles.coil)
+            implementation(libs.bundles.coil3)
 
             api(libs.ktor.serialization.kotlinx.json)
             implementation(libs.androidx.datastore.preferences)

@@ -1,6 +1,7 @@
 package server.com.dao.recipe
 
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
 import server.com.dao.DatabaseFactory.dbQuery
 import server.com.models.CreateRecipeParams
 import server.com.models.UpdateRecipeParams
@@ -11,8 +12,8 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 
 class RecipeDaoImpl : RecipeDao {
     override suspend fun insert(params: CreateRecipeParams): Recipe? = dbQuery {
-        // Insert main recipe row
-        val stmt = RecipeTable.insert {
+        // 1) Insert the recipe row and grab the generated ID row immediately
+        val insertStmt = RecipeTable.insert {
             it[publisherId]      = params.publisherId
             it[recipeTitle]      = params.recipeTitle
             it[recipeDesc]       = params.recipeDesc
@@ -20,13 +21,14 @@ class RecipeDaoImpl : RecipeDao {
             it[imageUrl]         = params.imageUrl
         }
 
-        // Grab the generated ID
-        val newId = stmt.resultedValues
+        val row = insertStmt.resultedValues
             ?.singleOrNull()
-            ?.get(RecipeTable.recipeId)
             ?: return@dbQuery null
 
-        // Insert its ingredients
+        val newId = row[RecipeTable.recipeId]
+        println("Successfully inserted recipe with ID: $newId")
+
+        // 2) Insert ingredients in the *same* transaction
         params.ingredients.forEach { ing ->
             RecipeIngredientTable.insert {
                 it[recipeId]        = newId
@@ -36,16 +38,41 @@ class RecipeDaoImpl : RecipeDao {
             }
         }
 
-        // Return the full recipe
-        findById(newId)
+        // 3) Insert images in the same transaction
+        params.imageUrl?.let { mainUrl ->
+            RecipeImageTable.insert {
+                it[RecipeImageTable.recipeId] = newId
+                it[RecipeImageTable.imageUrl] = mainUrl
+            }
+        }
+        params.additionalImages?.forEach { url ->
+            RecipeImageTable.insert {
+                it[RecipeImageTable.recipeId] = newId
+                it[RecipeImageTable.imageUrl] = url
+            }
+        }
+
+        // 4) Now map the inserted row to your domain object,
+        //    and load ingredients & images—all inside this transaction.
+        val ingredients = loadIngredients(newId)
+        val images      = loadImages(newId)
+
+        val inserted = rowToRecipe(row)
+            .copy(ingredients = ingredients, images = images)
+        println("Mapped inserted recipe: $inserted")
+        inserted
     }
 
     override suspend fun findById(recipeId: Int): Recipe? = dbQuery {
+        println("Attempting to find recipe with ID: $recipeId")
         RecipeTable
             .select { RecipeTable.recipeId eq recipeId }
             .singleOrNull()
-            ?.let { row ->
-                rowToRecipe(row).copy(ingredients = loadIngredients(recipeId))
+            ?.let {
+                rowToRecipe(it).copy(
+                    ingredients = loadIngredients(recipeId),
+                    images      = loadImages(recipeId)
+                )
             }
     }
 
@@ -77,11 +104,23 @@ class RecipeDaoImpl : RecipeDao {
                 }
             }
         }
+        
+        // Replace additional images if provided
+        params.additionalImages?.let { newImages ->
+            RecipeImageTable.deleteWhere { RecipeImageTable.recipeId eq recipeId }
+            newImages.forEach { imageUrl ->
+                RecipeImageTable.insert {
+                    it[RecipeImageTable.recipeId] = recipeId
+                    it[RecipeImageTable.imageUrl] = imageUrl
+                }
+            }
+        }
 
         findById(recipeId)
     }
 
     override suspend fun delete(recipeId: Int): Boolean = dbQuery {
+        // The foreign key constraints will automatically delete related ingredients and images
         RecipeTable.deleteWhere { RecipeTable.recipeId eq recipeId } > 0
     }
 
@@ -101,13 +140,41 @@ class RecipeDaoImpl : RecipeDao {
                         (RecipeTable.recipeDesc.lowerCase()   like pat)
             }
             .map { row ->
-                rowToRecipe(row).copy(ingredients = loadIngredients(row[RecipeTable.recipeId]))
+                val id = row[RecipeTable.recipeId]
+                rowToRecipe(row).copy(
+                    ingredients = loadIngredients(id),
+                    images = loadImages(id)
+                )
             }
+    }
+    
+    // New methods for handling recipe images
+    override suspend fun addRecipeImage(recipeId: Int, imageUrl: String): RecipeImage? = dbQuery {
+        val stmt = RecipeImageTable.insert {
+            it[RecipeImageTable.recipeId] = recipeId
+            it[RecipeImageTable.imageUrl] = imageUrl
+        }
+        
+        stmt.resultedValues?.singleOrNull()?.let { row ->
+            RecipeImage(
+                id = row[RecipeImageTable.id],
+                recipeId = row[RecipeImageTable.recipeId],
+                imageUrl = row[RecipeImageTable.imageUrl]
+            )
+        }
+    }
+    
+    override suspend fun getRecipeImages(recipeId: Int): List<RecipeImage> = dbQuery {
+        loadImages(recipeId)
+    }
+    
+    override suspend fun deleteRecipeImage(imageId: Int): Boolean = dbQuery {
+        RecipeImageTable.deleteWhere { RecipeImageTable.id eq imageId } > 0
     }
 
     // ——— Helpers ———
 
-    /** Maps the recipe row into a Recipe (without ingredients). */
+    /** Maps the recipe row into a Recipe (without ingredients or images). */
     private fun rowToRecipe(row: ResultRow): Recipe = Recipe(
         recipeId        = row[RecipeTable.recipeId],
         publisherId     = row[RecipeTable.publisherId],
@@ -117,7 +184,8 @@ class RecipeDaoImpl : RecipeDao {
         publishedAt     = row[RecipeTable.publishedAt].toEpochSecond(ZoneOffset.UTC),
         imageUrl        = row[RecipeTable.imageUrl],
         savesCount      = row[RecipeTable.savesCount],
-        ingredients     = emptyList()  // filled in by caller
+        ingredients     = emptyList(),  // filled in by caller
+        images          = emptyList()   // filled in by caller
     )
 
     /** Loads all ingredients for one recipe. */
@@ -133,4 +201,17 @@ class RecipeDaoImpl : RecipeDao {
                     measurementUnit = row[RecipeIngredientTable.measurementUnit]
                 )
             }
+            
+    /** Loads all images for one recipe. */
+    private fun loadImages(recipeId: Int): List<RecipeImage> =
+        RecipeImageTable
+            .select { RecipeImageTable.recipeId eq recipeId }
+            .map { row ->
+                RecipeImage(
+                    id       = row[RecipeImageTable.id],
+                    recipeId = row[RecipeImageTable.recipeId],
+                    imageUrl = row[RecipeImageTable.imageUrl]
+                )
+            }
 }
+

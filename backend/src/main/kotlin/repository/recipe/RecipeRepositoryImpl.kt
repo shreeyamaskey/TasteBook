@@ -1,6 +1,7 @@
 package server.com.repository.recipe
 
 import io.ktor.http.*
+import kotlinx.coroutines.runBlocking
 import server.com.dao.recipe.RecipeDao
 import server.com.models.*
 import server.com.util.Response
@@ -10,36 +11,29 @@ class RecipeRepositoryImpl(
 ) : RecipeRepository {
     
     override suspend fun createRecipe(params: CreateRecipeParams): Response<RecipeResponse> {
-        val recipe = recipeDao.insert(params)
-        
-        return if (recipe == null) {
+        return try {
+            val recipe = recipeDao.insert(params)  // Remove runBlocking since we're now in a suspend function
+            
+            if (recipe != null) {
+                Response.Success(
+                    data = RecipeResponse(
+                        data = mapRecipeToResponseData(recipe)
+                    )
+                )
+            } else {
+                Response.Error(
+                    code = HttpStatusCode.InternalServerError,
+                    data = RecipeResponse(
+                        errorMessage = "Sorry, the recipe could not be created at this time, try later!"
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
             Response.Error(
                 code = HttpStatusCode.InternalServerError,
                 data = RecipeResponse(
                     errorMessage = "Sorry, the recipe could not be created at this time, try later!"
-                )
-            )
-        } else {
-            Response.Success(
-                data = RecipeResponse(
-                    data = RecipeResponseData(
-                        recipeId = recipe.recipeId,
-                        publisherId = recipe.publisherId,
-                        recipeTitle = recipe.recipeTitle,
-                        recipeDesc = recipe.recipeDesc,
-                        preparationSteps = recipe.preparationSteps,
-                        publishedAt = recipe.publishedAt,
-                        imageUrl = recipe.imageUrl,
-                        savesCount = recipe.savesCount,
-                        ingredients = recipe.ingredients.map { ingredient ->
-                            IngredientResponseData(
-                                id = ingredient.id,
-                                ingredientName = ingredient.ingredientName,
-                                quantity = ingredient.quantity,
-                                measurementUnit = ingredient.measurementUnit
-                            )
-                        }
-                    )
                 )
             )
         }
@@ -58,24 +52,7 @@ class RecipeRepositoryImpl(
         } else {
             Response.Success(
                 data = RecipeResponse(
-                    data = RecipeResponseData(
-                        recipeId = recipe.recipeId,
-                        publisherId = recipe.publisherId,
-                        recipeTitle = recipe.recipeTitle,
-                        recipeDesc = recipe.recipeDesc,
-                        preparationSteps = recipe.preparationSteps,
-                        publishedAt = recipe.publishedAt,
-                        imageUrl = recipe.imageUrl,
-                        savesCount = recipe.savesCount,
-                        ingredients = recipe.ingredients.map { ingredient ->
-                            IngredientResponseData(
-                                id = ingredient.id,
-                                ingredientName = ingredient.ingredientName,
-                                quantity = ingredient.quantity,
-                                measurementUnit = ingredient.measurementUnit
-                            )
-                        }
-                    )
+                    data = mapRecipeToResponseData(recipe)
                 )
             )
         }
@@ -87,24 +64,7 @@ class RecipeRepositoryImpl(
         return Response.Success(
             data = recipes.map { recipe ->
                 RecipeResponse(
-                    data = RecipeResponseData(
-                        recipeId = recipe.recipeId,
-                        publisherId = recipe.publisherId,
-                        recipeTitle = recipe.recipeTitle,
-                        recipeDesc = recipe.recipeDesc,
-                        preparationSteps = recipe.preparationSteps,
-                        publishedAt = recipe.publishedAt,
-                        imageUrl = recipe.imageUrl,
-                        savesCount = recipe.savesCount,
-                        ingredients = recipe.ingredients.map { ingredient ->
-                            IngredientResponseData(
-                                id = ingredient.id,
-                                ingredientName = ingredient.ingredientName,
-                                quantity = ingredient.quantity,
-                                measurementUnit = ingredient.measurementUnit
-                            )
-                        }
-                    )
+                    data = mapRecipeToResponseData(recipe)
                 )
             }
         )
@@ -133,24 +93,7 @@ class RecipeRepositoryImpl(
             } else {
                 Response.Success(
                     data = RecipeResponse(
-                        data = RecipeResponseData(
-                            recipeId = updatedRecipe.recipeId,
-                            publisherId = updatedRecipe.publisherId,
-                            recipeTitle = updatedRecipe.recipeTitle,
-                            recipeDesc = updatedRecipe.recipeDesc,
-                            preparationSteps = updatedRecipe.preparationSteps,
-                            publishedAt = updatedRecipe.publishedAt,
-                            imageUrl = updatedRecipe.imageUrl,
-                            savesCount = updatedRecipe.savesCount,
-                            ingredients = updatedRecipe.ingredients.map { ingredient ->
-                                IngredientResponseData(
-                                    id = ingredient.id,
-                                    ingredientName = ingredient.ingredientName,
-                                    quantity = ingredient.quantity,
-                                    measurementUnit = ingredient.measurementUnit
-                                )
-                            }
-                        )
+                        data = mapRecipeToResponseData(updatedRecipe)
                     )
                 )
             }
@@ -207,24 +150,90 @@ class RecipeRepositoryImpl(
         return Response.Success(
             data = recipes.map { recipe ->
                 RecipeResponse(
-                    data = RecipeResponseData(
-                        recipeId = recipe.recipeId,
-                        publisherId = recipe.publisherId,
-                        recipeTitle = recipe.recipeTitle,
-                        recipeDesc = recipe.recipeDesc,
-                        preparationSteps = recipe.preparationSteps,
-                        publishedAt = recipe.publishedAt,
-                        imageUrl = recipe.imageUrl,
-                        savesCount = recipe.savesCount,
-                        ingredients = recipe.ingredients.map { ingredient ->
-                            IngredientResponseData(
-                                id = ingredient.id,
-                                ingredientName = ingredient.ingredientName,
-                                quantity = ingredient.quantity,
-                                measurementUnit = ingredient.measurementUnit
-                            )
-                        }
+                    data = mapRecipeToResponseData(recipe)
+                )
+            }
+        )
+    }
+    
+    override suspend fun addRecipeImage(recipeId: Int, imageUrl: String): Response<RecipeResponse> {
+        val existingRecipe = recipeDao.findById(recipeId)
+        
+        return if (existingRecipe == null) {
+            Response.Error(
+                code = HttpStatusCode.NotFound,
+                data = RecipeResponse(
+                    errorMessage = "Recipe not found!"
+                )
+            )
+        } else {
+            val addedImage = recipeDao.addRecipeImage(recipeId, imageUrl)
+            
+            if (addedImage == null) {
+                Response.Error(
+                    code = HttpStatusCode.InternalServerError,
+                    data = RecipeResponse(
+                        errorMessage = "Sorry, the image could not be added at this time, try later!"
                     )
+                )
+            } else {
+                // Fetch the updated recipe with the new image
+                val updatedRecipe = recipeDao.findById(recipeId)
+                
+                if (updatedRecipe == null) {
+                    Response.Error(
+                        code = HttpStatusCode.InternalServerError,
+                        data = RecipeResponse(
+                            errorMessage = "Error retrieving updated recipe!"
+                        )
+                    )
+                } else {
+                    Response.Success(
+                        data = RecipeResponse(
+                            data = mapRecipeToResponseData(updatedRecipe)
+                        )
+                    )
+                }
+            }
+        }
+    }
+    
+    override suspend fun deleteRecipeImage(imageId: Int): Response<Boolean> {
+        val deleted = recipeDao.deleteRecipeImage(imageId)
+        
+        return if (deleted) {
+            Response.Success(data = true)
+        } else {
+            Response.Error(
+                code = HttpStatusCode.NotFound,
+                data = false
+            )
+        }
+    }
+    
+    // Helper function to map Recipe to RecipeResponseData
+    private fun mapRecipeToResponseData(recipe: server.com.dao.recipe.Recipe): RecipeResponseData {
+        return RecipeResponseData(
+            recipeId = recipe.recipeId,
+            publisherId = recipe.publisherId,
+            recipeTitle = recipe.recipeTitle,
+            recipeDesc = recipe.recipeDesc,
+            preparationSteps = recipe.preparationSteps,
+            publishedAt = recipe.publishedAt,
+            imageUrl = recipe.imageUrl,
+            savesCount = recipe.savesCount,
+            ingredients = recipe.ingredients.map { ingredient ->
+                IngredientResponseData(
+                    id = ingredient.id,
+                    ingredientName = ingredient.ingredientName,
+                    quantity = ingredient.quantity,
+                    measurementUnit = ingredient.measurementUnit
+                )
+            },
+            images = recipe.images.map { image ->
+                RecipeImageResponseData(
+                    id = image.id,
+                    imageUrl = image.imageUrl
                 )
             }
         )

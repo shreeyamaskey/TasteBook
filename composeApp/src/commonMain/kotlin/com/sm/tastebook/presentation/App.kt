@@ -25,6 +25,8 @@ import com.sm.tastebook.presentation.user.LoginScreen
 import com.sm.tastebook.presentation.user.LoginViewModel
 import com.sm.tastebook.presentation.home.WelcomeScreen
 import com.sm.tastebook.presentation.components.TasteBookAppBar
+import com.sm.tastebook.presentation.recipe.RecipeAddScreen
+
 
 import androidx.activity.compose.BackHandler
 import com.sm.tastebook.domain.user.usecases.LogInUseCase
@@ -138,7 +140,9 @@ fun App(
                 }
                 
                 composable("recipe_add") {
-                    // TODO: Implement recipe add screen
+                    RecipeAddScreen(
+                        onNavigateBack = { navController.navigateUp() }
+                    )
                 }
                 
                 composable("recipe_view") {

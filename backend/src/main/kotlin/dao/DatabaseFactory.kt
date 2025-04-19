@@ -7,6 +7,9 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import server.com.dao.recipe.RecipeImageTable
+import server.com.dao.recipe.RecipeIngredientTable
+import server.com.dao.recipe.RecipeTable
 import server.com.dao.user.UserTable
 
 object DatabaseFactory {
@@ -14,6 +17,9 @@ object DatabaseFactory {
         Database.connect(createHikariDataSource())
         transaction {
             SchemaUtils.create(UserTable)
+            SchemaUtils.create(RecipeTable)
+            SchemaUtils.create(RecipeIngredientTable)
+            SchemaUtils.create(RecipeImageTable)
         }
     }
 

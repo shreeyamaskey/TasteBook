@@ -11,4 +11,7 @@ interface RecipeDao {
     suspend fun delete(recipeId: Int): Boolean
     suspend fun incrementSaves(recipeId: Int): Boolean
     suspend fun search(query: String): List<Recipe>
+    suspend fun addRecipeImage(recipeId: Int, imageUrl: String): RecipeImage?
+    suspend fun getRecipeImages(recipeId: Int): List<RecipeImage>
+    suspend fun deleteRecipeImage(imageId: Int): Boolean
 }

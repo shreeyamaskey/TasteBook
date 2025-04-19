@@ -1,43 +1,43 @@
-package server.com.models
+package com.sm.tastebook.data.recipe
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CreateRecipeParams(
+internal data class CreateRecipeRequest(
     var publisherId: Int = 0,
     val recipeTitle: String,
     val recipeDesc: String,
     val preparationSteps: String,
-    val ingredients: List<CreateIngredientParams> = emptyList(),
+    val ingredients: List<CreateIngredientRequest> = emptyList(),
     val imageUrl: String? = null,
     val additionalImages: List<String>? = null
 )
 
 @Serializable
-data class CreateIngredientParams(
+internal data class CreateIngredientRequest(
     val ingredientName: String,
     val quantity: Double,
     val measurementUnit: String
 )
 
 @Serializable
-data class UpdateRecipeParams(
+internal data class UpdateRecipeRequest(
     val recipeTitle: String? = null,
     val recipeDesc: String? = null,
     val preparationSteps: String? = null,
     val imageUrl: String? = null,
-    val ingredients: List<CreateIngredientParams>? = null,
+    val ingredients: List<CreateIngredientRequest>? = null,
     val additionalImages: List<String>? = null
 )
 
 @Serializable
-data class RecipeResponse(
+internal data class RecipeResponse(
     val data: RecipeResponseData? = null,
     val errorMessage: String? = null
 )
 
 @Serializable
-data class RecipeResponseData(
+internal data class RecipeResponseData(
     val recipeId: Int,
     val publisherId: Int,
     val recipeTitle: String,
@@ -51,7 +51,7 @@ data class RecipeResponseData(
 )
 
 @Serializable
-data class IngredientResponseData(
+internal data class IngredientResponseData(
     val id: Int,
     val ingredientName: String,
     val quantity: Double,
@@ -59,7 +59,7 @@ data class IngredientResponseData(
 )
 
 @Serializable
-data class RecipeImageResponseData(
+internal data class RecipeImageResponseData(
     val id: Int,
     val imageUrl: String
 )
