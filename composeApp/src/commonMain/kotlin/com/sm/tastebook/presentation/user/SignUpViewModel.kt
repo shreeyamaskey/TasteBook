@@ -58,9 +58,7 @@ class SignUpViewModel(
                     }
 
                     is Result.Success -> {
-                        dataStore.updateData {
-                            userAuthResultData.data!!.toUserSettings()
-                        }
+                        saveUserData(userAuthResultData.data!!)
                         uiState.copy(
                             isAuthenticating = false,
                             isSignedUp = true
@@ -100,6 +98,22 @@ class SignUpViewModel(
     fun onConfirmPasswordChange(value: String) {
         uiState = uiState.copy(confirmPassword = value)
     }
+
+    private fun saveUserData(userData: UserAuthResultData) {
+        viewModelScope.launch {
+            dataStore.updateData {
+                UserSettings(
+                    id = userData.id,
+                    firstName = userData.firstName,
+                    lastName = userData.lastName,
+                    username = userData.username,
+                    email = userData.email,
+                    avatar = userData.avatar,
+                    token = userData.token
+                )
+            }
+        }
+    }
 }
 
 
@@ -114,4 +128,6 @@ data class SignUpUiState(
     val isAuthenticating: Boolean = false,
     val isSignedUp: Boolean = false
 )
+
+
 

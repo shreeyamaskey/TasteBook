@@ -11,4 +11,5 @@ interface UserRepository {
     suspend fun signUp(params: SignUpParams): Response<AuthResponse>
     suspend fun logIn(params: LogInParams): Response<AuthResponse>
     suspend fun updateUser(id: Int, params: UpdateUserParams): Response<AuthResponse>
+    suspend fun getUserById(id: Int): Response<AuthResponse>
 }

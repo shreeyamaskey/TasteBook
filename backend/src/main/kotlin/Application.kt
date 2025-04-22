@@ -14,8 +14,8 @@ fun main(args: Array<String>) {
 fun Application.module() {
     DatabaseFactory.init()
     configureSerialization()
-    configureDI()
     configureSecurity()
+    configureDI()
     configureRouting()
     
     // Configure static resources for serving images

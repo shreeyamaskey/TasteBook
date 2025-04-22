@@ -13,6 +13,8 @@ fun Application.configureSerialization() {
         json(Json {
             prettyPrint = true
             isLenient = true
+            encodeDefaults = true
+            ignoreUnknownKeys = true
         })
     }
 }

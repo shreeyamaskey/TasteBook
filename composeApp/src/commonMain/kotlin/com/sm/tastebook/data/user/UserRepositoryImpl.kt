@@ -65,4 +65,25 @@ internal class UserRepositoryImpl(
 
         }
     }
+
+    override suspend fun getUserProfile(userId: Int): Result<UserAuthResultData> {
+        return withContext(dispatcher.io) {
+            try {
+                val authResponse = authService.getUserProfile(userId)
+                if (authResponse.data == null) {
+                    Result.Error(
+                        message = authResponse.errorMessage ?: "Unknown error"
+                    )
+                } else {
+                    Result.Success(
+                        data = authResponse.data.toAuthResultData()
+                    )
+                }
+            } catch (e: Exception) {
+                Result.Error(
+                    message = "We could not fetch your profile :(, try later!"
+                )
+            }
+        }
+    }
 }

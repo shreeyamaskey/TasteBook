@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import server.com.dao.inventory.InventoryTable
 import server.com.dao.recipe.RecipeImageTable
 import server.com.dao.recipe.RecipeIngredientTable
 import server.com.dao.recipe.RecipeTable
@@ -20,6 +21,7 @@ object DatabaseFactory {
             SchemaUtils.create(RecipeTable)
             SchemaUtils.create(RecipeIngredientTable)
             SchemaUtils.create(RecipeImageTable)
+            SchemaUtils.create(InventoryTable)
         }
     }
 

@@ -2,6 +2,7 @@ package com.sm.tastebook.data.user
 
 import com.sm.tastebook.data.common.KtorApi
 import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 
@@ -15,6 +16,10 @@ internal class AuthService: KtorApi() {
     suspend fun logIn(request: LogInRequest): AuthResponse = client.post {
         endPoint(path = "login")
         setBody(request)
+    }.body()
+
+    suspend fun getUserProfile(userId: Int): AuthResponse = client.get {
+        endPoint(path = "user/$userId")
     }.body()
 
 }

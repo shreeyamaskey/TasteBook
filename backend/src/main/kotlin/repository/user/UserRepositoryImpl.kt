@@ -73,6 +73,7 @@ class UserRepositoryImpl(
                             lastName = user.lastName,
                             username = user.username,
                             email = user.email,
+                            avatar = user.imageUrl,
                             token = generateToken(email = user.email, userId = user.id)
                         )
                     )
@@ -145,6 +146,32 @@ class UserRepositoryImpl(
                     )
                 )
             }
+        }
+    }
+
+    override suspend fun getUserById(id: Int): Response<AuthResponse> {
+        val user = userDao.findById(id)
+        return if (user == null) {
+            Response.Error(
+                code = HttpStatusCode.NotFound,
+                data = AuthResponse(
+                    errorMessage = "User not found!"
+                )
+            )
+        } else {
+            Response.Success(
+                data = AuthResponse(
+                    data = AuthResponseData(
+                        id = user.id,
+                        firstName = user.firstName,
+                        lastName = user.lastName,
+                        username = user.username,
+                        email = user.email,
+                        avatar = user.imageUrl,
+                        token = generateToken(email = user.email, userId = user.id)
+                    )
+                )
+            )
         }
     }
 

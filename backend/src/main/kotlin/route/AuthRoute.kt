@@ -88,4 +88,22 @@ fun Routing.authRouting() {
             )
         }
     }
+
+    route(path = "/user/{id}") {
+        get {
+            val id = call.parameters["id"]?.toIntOrNull()
+                ?: return@get call.respond(
+                    status = HttpStatusCode.BadRequest,
+                    message = AuthResponse(
+                        errorMessage = "Invalid ID format"
+                    )
+                )
+
+            val result = repository.getUserById(id)
+            call.respond(
+                status = result.code,
+                message = result.data
+            )
+        }
+    }
 }

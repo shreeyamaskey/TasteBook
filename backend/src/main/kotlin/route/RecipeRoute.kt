@@ -25,23 +25,32 @@ fun Routing.recipeRouting() {
     // Create a new recipe with image upload
     authenticate {
         post("/recipes") {
+            println("Received POST /recipes request")
             var mainImageFileName = ""
             var additionalImageFileNames = mutableListOf<String>()
             var recipeParams: CreateRecipeParams? = null
             val multiPartData = call.receiveMultipart()
 
+            println("Processing multipart data...")
             multiPartData.forEachPart { partData ->
                 when(partData) {
                     is PartData.FileItem -> {
+                        println("Received file part: ${partData.name}")
                         if (partData.name == "main_image") {
                             mainImageFileName = partData.saveFile(folderPath = Constants.RECIPE_IMAGES_FOLDER_PATH)
+                            println("Saved main image: $mainImageFileName")
                         } else if (partData.name?.startsWith("additional_image") == true) {
-                            additionalImageFileNames.add(partData.saveFile(folderPath = Constants.RECIPE_IMAGES_FOLDER_PATH))
+                            val fileName = partData.saveFile(folderPath = Constants.RECIPE_IMAGES_FOLDER_PATH)
+                            additionalImageFileNames.add(fileName)
+                            println("Saved additional image: $fileName")
                         }
                     }
                     is PartData.FormItem -> {
+                        println("Received form part: ${partData.name}")
                         if (partData.name == "recipe_data") {
+                            println("Parsing recipe_data...")
                             recipeParams = Json.decodeFromString(partData.value)
+                            println("Parsed recipe data: $recipeParams")
                         }
                     }
                     else -> {}
@@ -57,13 +66,18 @@ fun Routing.recipeRouting() {
                 "${Constants.BASE_URL}${Constants.RECIPE_IMAGES_FOLDER}$it" 
             }
 
+            println("Generated image URLs: mainImageUrl=$mainImageUrl, additionalImageUrls=$additionalImageUrls")
+
             if (recipeParams == null) {
+                println("Error: Recipe data is missing")
                 // Clean up any uploaded files if recipe data is missing
                 if (mainImageFileName.isNotEmpty()) {
                     File("${Constants.RECIPE_IMAGES_FOLDER_PATH}/$mainImageFileName").delete()
+                    println("Deleted main image file: $mainImageFileName")
                 }
                 additionalImageFileNames.forEach {
                     File("${Constants.RECIPE_IMAGES_FOLDER_PATH}/$it").delete()
+                    println("Deleted additional image file: $it")
                 }
 
                 call.respond(
@@ -92,8 +106,9 @@ fun Routing.recipeRouting() {
             )
             println("Complete params: $completeParams")
             
+            println("Creating recipe in repository...")
             val result = recipeRepository.createRecipe(completeParams)
-            println("Result from repository: $result")
+            println("Repository result: $result")
             call.respond(result.code, result.data)
         }
     }
@@ -101,9 +116,11 @@ fun Routing.recipeRouting() {
     // Add an image to an existing recipe
     authenticate {
         post("/recipes/{id}/images") {
+            println("Received POST /recipes/{id}/images request")
             val recipeId = call.parameters["id"]?.toIntOrNull()
 
             if (recipeId == null) {
+                println("Error: Invalid recipe ID")
                 call.respond(HttpStatusCode.BadRequest, "Invalid recipe ID")
                 return@post
             }
@@ -111,10 +128,13 @@ fun Routing.recipeRouting() {
             var fileName = ""
             val multiPartData = call.receiveMultipart()
 
+            println("Processing multipart data...")
             multiPartData.forEachPart { partData ->
                 when(partData) {
                     is PartData.FileItem -> {
+                        println("Received file part: ${partData.name}")
                         fileName = partData.saveFile(folderPath = Constants.RECIPE_IMAGES_FOLDER_PATH)
+                        println("Saved image file: $fileName")
                     }
                     else -> {}
                 }
@@ -122,13 +142,17 @@ fun Routing.recipeRouting() {
             }
 
             if (fileName.isEmpty()) {
+                println("Error: No image file provided")
                 call.respond(HttpStatusCode.BadRequest, "No image file provided")
                 return@post
             }
 
             val imageUrl = "${Constants.BASE_URL}${Constants.RECIPE_IMAGES_FOLDER}$fileName"
+            println("Generated image URL: $imageUrl")
+
+            println("Adding image to recipe $recipeId...")
             val result = recipeRepository.addRecipeImage(recipeId, imageUrl)
-            
+            println("Repository result: $result")
             call.respond(result.code, result.data)
         }
     }
@@ -241,7 +265,9 @@ fun Routing.recipeRouting() {
             )
             
             val result = recipeRepository.updateRecipe(recipeId, completeParams)
+            // In the POST /recipes handler, replace:
             call.respond(result.code, result.data)
+
         }
     }
 

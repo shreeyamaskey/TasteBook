@@ -64,6 +64,11 @@ kotlin {
 
             implementation(libs.bundles.ktor)
             implementation(libs.bundles.coil3)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.logging.jvm)
+            implementation(libs.ktor.client.cio)
 
             api(libs.ktor.serialization.kotlinx.json)
             implementation(libs.androidx.datastore.preferences)

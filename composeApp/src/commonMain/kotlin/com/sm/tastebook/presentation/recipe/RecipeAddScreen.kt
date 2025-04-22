@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -31,6 +32,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import org.koin.compose.viewmodel.koinViewModel
+import android.widget.Toast.LENGTH_SHORT
 
 @Composable
 fun RecipeAddScreen(
@@ -41,17 +43,23 @@ fun RecipeAddScreen(
     val currentIngredient by viewModel.currentIngredient.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    // Gallery picker launcher
-    val galleryLauncher = rememberLauncherForActivityResult(
+    // launchers now just feed Uri back to ViewModel
+    val mainImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let { viewModel.addPhotoUrl(it.toString()) }
+    ) { uri ->
+        uri?.let(viewModel::setMainImageUri)
+    }
+    
+    val additionalImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let(viewModel::addAdditionalImageUri)
     }
 
     // Side effect: navigate or show error
     LaunchedEffect(uiState.isSuccess, uiState.error) {
         if (uiState.isSuccess) onNavigateBack()
-        uiState.error?.let { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+        uiState.error?.let { Toast.makeText(context, it, LENGTH_SHORT).show() }
     }
 
     LazyColumn(
@@ -92,6 +100,20 @@ fun RecipeAddScreen(
                     .fillMaxWidth()
                     .height(120.dp),
                 maxLines = 5
+            )
+        }
+        
+        // Preparation Steps field
+        item {
+            OutlinedTextField(
+                value = uiState.preparationSteps,
+                onValueChange = viewModel::onPreparationStepsChange,
+                label = { Text("Preparation Steps", color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f)) },
+                textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.secondary),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
+                maxLines = 10
             )
         }
 
@@ -176,21 +198,59 @@ fun RecipeAddScreen(
 
         // Photos section
         item { Text("Photos", style = MaterialTheme.typography.titleLarge) }
+        
+        // Main image section
         item {
-            Button(
-                onClick = { galleryLauncher.launch("image/*") },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.PhotoCamera, contentDescription = "Add Photo from Gallery")
-                Spacer(Modifier.width(8.dp))
-                Text("Add Photo from Gallery")
+            Column {
+                Text("Main Image (Required)", style = MaterialTheme.typography.titleMedium)
+                Button(
+                    onClick = { mainImageLauncher.launch("image/*") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.PhotoCamera, contentDescription = "Add Main Photo")
+                    Spacer(Modifier.width(8.dp))
+                    Text("Select Main Photo")
+                }
+                
+                // Display main image preview if available
+                uiState.mainImageUri?.let { uri ->
+                    Box(
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .size(200.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+                    ) {
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = "Main Image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+            }
+        }
+        
+        // Additional images section
+        item {
+            Column {
+                Text("Additional Images (Optional)", style = MaterialTheme.typography.titleMedium)
+                Button(
+                    onClick = { additionalImageLauncher.launch("image/*") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.PhotoCamera, contentDescription = "Add Additional Photo")
+                    Spacer(Modifier.width(8.dp))
+                    Text("Add Additional Photo")
+                }
             }
         }
 
-        if (uiState.photoUrls.isNotEmpty()) {
+        if (uiState.additionalImageUris.isNotEmpty()) {
             item {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    itemsIndexed(uiState.photoUrls) { idx, url ->
+                    itemsIndexed(uiState.additionalImageUris) { idx, uri ->
                         Box(
                             modifier = Modifier
                                 .size(120.dp)
@@ -198,19 +258,22 @@ fun RecipeAddScreen(
                                 .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                         ) {
                             AsyncImage(
-                                model = ImageRequest.Builder(LocalPlatformContext.current).data(url).build(),
+                                model = uri,
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
                             )
                             IconButton(
-                                onClick = { viewModel.removePhotoUrl(idx) },
+                                onClick = { viewModel.removeAdditionalImageUri(idx) },
                                 modifier = Modifier
                                     .align(Alignment.TopEnd)
                                     .size(32.dp)
-                                    .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f), shape = RoundedCornerShape(4.dp))
+                                    .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f), 
+                                               shape = RoundedCornerShape(4.dp))
                             ) {
-                                Icon(Icons.Default.Delete, contentDescription = "Remove Photo", tint = MaterialTheme.colorScheme.onSecondary)
+                                Icon(Icons.Default.Delete, 
+                                     contentDescription = "Remove Photo", 
+                                     tint = MaterialTheme.colorScheme.onSecondary)
                             }
                         }
                     }

@@ -22,7 +22,7 @@ fun TasteBookFooter(
     modifier: Modifier = Modifier
 ) {
     // Determine which screens should show the footer
-    val shouldShowFooter = currentRoute in listOf("home", "profile", "recipe_view", "recipe_add", "inventory")
+    val shouldShowFooter = currentRoute in listOf("home", "profile", "recipe_view", "recipe_add", "inventory", "saved_recipes")
     
     if (shouldShowFooter) {
         Box(

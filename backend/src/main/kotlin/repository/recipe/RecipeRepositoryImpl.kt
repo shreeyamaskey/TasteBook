@@ -12,15 +12,25 @@ class RecipeRepositoryImpl(
     
     override suspend fun createRecipe(params: CreateRecipeParams): Response<RecipeResponse> {
         return try {
-            val recipe = recipeDao.insert(params)  // Remove runBlocking since we're now in a suspend function
+            println("Repository: Creating recipe with params: $params")
+            println("Repository: Image URL in params: ${params.imageUrl}")
+            println("Repository: Additional images in params: ${params.additionalImages}")
+            
+            val recipe = recipeDao.insert(params)
             
             if (recipe != null) {
+                println("Repository: Recipe created successfully: $recipe")
+                println("Repository: Recipe ID: ${recipe.recipeId}")
+                println("Repository: Recipe ingredients count: ${recipe.ingredients.size}")
+                println("Repository: Recipe images count: ${recipe.images.size}")
+                
                 Response.Success(
                     data = RecipeResponse(
                         data = mapRecipeToResponseData(recipe)
                     )
                 )
             } else {
+                println("Repository: Recipe creation failed - DAO returned null")
                 Response.Error(
                     code = HttpStatusCode.InternalServerError,
                     data = RecipeResponse(
@@ -29,6 +39,7 @@ class RecipeRepositoryImpl(
                 )
             }
         } catch (e: Exception) {
+            println("Repository ERROR: Exception during recipe creation: ${e.message}")
             e.printStackTrace()
             Response.Error(
                 code = HttpStatusCode.InternalServerError,

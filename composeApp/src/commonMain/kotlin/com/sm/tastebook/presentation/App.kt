@@ -31,6 +31,9 @@ import com.sm.tastebook.presentation.recipe.RecipeAddScreen
 import androidx.activity.compose.BackHandler
 import com.sm.tastebook.domain.user.usecases.LogInUseCase
 import com.sm.tastebook.presentation.components.TasteBookFooter
+import com.sm.tastebook.presentation.inventory.InventoryScreen
+import com.sm.tastebook.presentation.profile.ProfileScreen
+import com.sm.tastebook.presentation.recipe.MyRecipesScreen
 
 
 @Composable
@@ -96,7 +99,6 @@ fun App(
                 }
 
                 composable("login") {
-                    val loginUseCase = remember { LogInUseCase() }
                     val loginViewModel: LoginViewModel = koinViewModel()
 
                     LaunchedEffect(loginViewModel.uiState.isLoggedIn) {
@@ -131,7 +133,7 @@ fun App(
                 
                 // Add placeholders for future screens
                 composable("inventory") {
-                    // TODO: Add inventory screen
+                    InventoryScreen()
                 }
 
                 // Add routes for the new screens referenced in the footer
@@ -146,11 +148,21 @@ fun App(
                 }
                 
                 composable("recipe_view") {
-                    // TODO: Implement recipe view screen
+                    MyRecipesScreen(
+                        onOpenRecipe = {  }
+                    )
                 }
                 
                 composable("profile") {
-                    // TODO: Implement profile screen
+                    ProfileScreen(
+                        onEditProfileClick = { /* TODO: Navigate to edit profile */ },
+                        onYourRecipesClick = { 
+                            navController.navigate("recipe_view") {
+                            popUpTo("profile") { inclusive = true }
+                            } 
+                        },
+                        onYourCommunityClick = { /* TODO: Navigate to user's community */ }
+                    )
                 }
             }
             

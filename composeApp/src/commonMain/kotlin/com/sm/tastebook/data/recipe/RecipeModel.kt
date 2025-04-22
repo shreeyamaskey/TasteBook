@@ -4,13 +4,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class CreateRecipeRequest(
-    var publisherId: Int = 0,
+    // var publisherId: Int? = null,
     val recipeTitle: String,
     val recipeDesc: String,
     val preparationSteps: String,
     val ingredients: List<CreateIngredientRequest> = emptyList(),
-    val imageUrl: String? = null,
-    val additionalImages: List<String>? = null
+    // val imageUrl: String? = null,
+    // val additionalImages: List<String>? = null
 )
 
 @Serializable

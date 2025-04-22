@@ -13,6 +13,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 class RecipeDaoImpl : RecipeDao {
     override suspend fun insert(params: CreateRecipeParams): Recipe? = dbQuery {
         // 1) Insert the recipe row and grab the generated ID row immediately
+        println("DAO: Starting recipe insertion with params: $params")
         val insertStmt = RecipeTable.insert {
             it[publisherId]      = params.publisherId
             it[recipeTitle]      = params.recipeTitle
@@ -23,7 +24,11 @@ class RecipeDaoImpl : RecipeDao {
 
         val row = insertStmt.resultedValues
             ?.singleOrNull()
-            ?: return@dbQuery null
+            ?: run {
+                println("DAO ERROR: Failed to get result values from insert statement")
+                return@dbQuery null
+            }
+            // ?: return@dbQuery null
 
         val newId = row[RecipeTable.recipeId]
         println("Successfully inserted recipe with ID: $newId")
@@ -37,6 +42,8 @@ class RecipeDaoImpl : RecipeDao {
                 it[measurementUnit] = ing.measurementUnit
             }
         }
+        println("DAO: Successfully inserted ${params.ingredients.size} ingredients")
+
 
         // 3) Insert images in the same transaction
         params.imageUrl?.let { mainUrl ->

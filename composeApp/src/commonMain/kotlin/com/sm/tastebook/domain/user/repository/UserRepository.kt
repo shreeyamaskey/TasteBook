@@ -20,4 +20,6 @@ internal interface UserRepository {
         password: String
     ): Result<UserAuthResultData>
 
+    suspend fun getUserProfile(userId: Int): Result<UserAuthResultData>
+
 }

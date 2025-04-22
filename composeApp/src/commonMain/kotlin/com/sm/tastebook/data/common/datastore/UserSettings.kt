@@ -14,9 +14,15 @@ data class UserSettings(
     val token: String = ""
 )
 
-fun UserSettings.toUserAuthResultData() : UserAuthResultData{
-    return UserAuthResultData(id, firstName, lastName, username, email, avatar, token)
-}
+fun UserSettings.toUserAuthResultData() = UserAuthResultData(
+    id = id,  // This mapping is crucial
+    firstName = firstName,
+    lastName = lastName,
+    username = username,
+    email = email,
+    avatar = avatar,
+    token = token
+)
 
 fun UserAuthResultData.toUserSettings() : UserSettings{
     return UserSettings(id, firstName, lastName, username, email, avatar, token)

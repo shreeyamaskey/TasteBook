@@ -44,9 +44,9 @@ class LoginViewModel(
                 }
 
                 is Result.Success -> {
-                    dataStore.updateData {
-                        authResultData.data!!.toUserSettings()
-                    }
+                    println("Debug: Login success, token: ${authResultData.data?.token}")
+                    println("Debug: Login success, userId: ${authResultData.data?.id}")
+                    saveUserData(authResultData.data!!)
                     uiState.copy(
                         isLoading = false,
                         isLoggedIn = true
@@ -72,6 +72,21 @@ class LoginViewModel(
         uiState =  uiState.copy(password = value)
     }
 
+    private fun saveUserData(userData: UserAuthResultData) {
+        viewModelScope.launch {
+            dataStore.updateData { 
+                UserSettings(
+                    id = userData.id,
+                    firstName = userData.firstName,
+                    lastName = userData.lastName,
+                    username = userData.username,
+                    email = userData.email,
+                    avatar = userData.avatar,
+                    token = userData.token
+                )
+            }
+        }
+    }
 }
 
 data class LoginUiState(
