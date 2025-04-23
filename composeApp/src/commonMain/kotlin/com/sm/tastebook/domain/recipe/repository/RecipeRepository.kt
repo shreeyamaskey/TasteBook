@@ -5,7 +5,7 @@ import com.sm.tastebook.domain.recipe.model.RecipeResponseData
 
 interface RecipeRepository {
     // Get a specific recipe by ID
-    suspend fun getRecipeById(recipeId: Int): Result<RecipeResponseData>
+    suspend fun getRecipeById(token: String, recipeId: Int): Result<RecipeResponseData>
     
     // Get all recipes by a specific publisher
     suspend fun getRecipesByPublisher(publisherId: Int): Result<List<RecipeResponseData>>

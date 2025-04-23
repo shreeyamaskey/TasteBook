@@ -27,8 +27,11 @@ import kotlinx.serialization.json.Json
 internal class RecipeService : KtorApi() {
 
     // Get a specific recipe by ID
-    suspend fun getRecipeById(recipeId: Int): RecipeResponse = client.get {
+    suspend fun getRecipeById(token: String, recipeId: Int): RecipeResponse = client.get {
         endPoint(path = "recipes/$recipeId")
+        // Format token properly
+        val formattedToken = if (!token.startsWith("Bearer ")) "Bearer $token" else token
+        setToken(formattedToken)
     }.body()
 
     // Get all recipes by a specific publisher

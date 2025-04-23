@@ -14,10 +14,10 @@ internal class RecipeRepositoryImpl(
     private val recipeService: RecipeService
 ) : RecipeRepository {
 
-    override suspend fun getRecipeById(recipeId: Int): Result<RecipeResponseData> {
+    override suspend fun getRecipeById(token: String, recipeId: Int): Result<RecipeResponseData> {
         return withContext(dispatcher.io) {
             try {
-                val response = recipeService.getRecipeById(recipeId)
+                val response = recipeService.getRecipeById(token, recipeId)
                 
                 if (response.data == null) {
                     Result.Error(

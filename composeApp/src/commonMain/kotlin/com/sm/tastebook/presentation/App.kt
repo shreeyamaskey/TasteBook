@@ -29,11 +29,14 @@ import com.sm.tastebook.presentation.recipe.RecipeAddScreen
 
 
 import androidx.activity.compose.BackHandler
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.sm.tastebook.domain.user.usecases.LogInUseCase
 import com.sm.tastebook.presentation.components.TasteBookFooter
 import com.sm.tastebook.presentation.inventory.InventoryScreen
 import com.sm.tastebook.presentation.profile.ProfileScreen
 import com.sm.tastebook.presentation.recipe.MyRecipesScreen
+import com.sm.tastebook.presentation.recipe.RecipeDetailScreen
 
 
 @Composable
@@ -149,8 +152,18 @@ fun App(
                 
                 composable("recipe_view") {
                     MyRecipesScreen(
-                        onOpenRecipe = {  }
+                        onOpenRecipe = { recipeId -> 
+                            navController.navigate("recipe_detail/$recipeId")
+                        }
                     )
+                }
+                
+                composable(
+                    route = "recipe_detail/{recipeId}",
+                    arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: return@composable
+                    RecipeDetailScreen(recipeId = recipeId)
                 }
                 
                 composable("profile") {

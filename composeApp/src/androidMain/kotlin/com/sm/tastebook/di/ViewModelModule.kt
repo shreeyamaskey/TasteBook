@@ -8,6 +8,7 @@ import com.sm.tastebook.presentation.inventory.InventoryViewModel
 import com.sm.tastebook.presentation.profile.ProfileViewModel
 import com.sm.tastebook.presentation.recipe.MyRecipesViewModel
 import com.sm.tastebook.presentation.recipe.RecipeAddViewModel
+import com.sm.tastebook.presentation.recipe.RecipeDetailViewModel
 import com.sm.tastebook.presentation.user.LoginViewModel
 import com.sm.tastebook.presentation.user.SignUpViewModel
 import kotlinx.serialization.serializer
@@ -23,6 +24,7 @@ val viewModelModule = module {
     viewModel { InventoryViewModel(get(), get(), get(), get()) }
     viewModel { ProfileViewModel(get()) }
     viewModel { MyRecipesViewModel(get(), get()) }
+    viewModel { RecipeDetailViewModel(get(), get()) }
 
 
 
