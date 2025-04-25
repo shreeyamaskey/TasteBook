@@ -35,7 +35,7 @@ internal class RecipeService : KtorApi() {
     }.body()
 
     // Get all recipes by a specific publisher
-    suspend fun getRecipesByPublisher(publisherId: Int): List<RecipeResponseData> = client.get {
+    suspend fun getRecipesByPublisher(publisherId: Int): List<RecipeResponse> = client.get {
         endPoint(path = "recipes/publisher/$publisherId")
     }.body()
 

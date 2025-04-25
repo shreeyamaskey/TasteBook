@@ -39,10 +39,19 @@ internal class RecipeRepositoryImpl(
     override suspend fun getRecipesByPublisher(publisherId: Int): Result<List<RecipeResponseData>> {
         return withContext(dispatcher.io) {
             try {
-                val recipes = recipeService.getRecipesByPublisher(publisherId)
-                Result.Success(
-                    data = recipes.map { it.toDomainModel() }
-                )
+                val response = recipeService.getRecipesByPublisher(publisherId)
+
+                if (response.isNotEmpty()) {
+                    println("Debug: Success, recipes count: ${response.size}")
+                    Result.Success(
+                        data = response.mapNotNull { wrapper ->
+                            wrapper.data?.toDomainModel() // Added safe call operator
+                        }
+                    )
+                } else {
+                    println("Debug: No recipes found")
+                    Result.Success(emptyList())
+                }
             } catch (e: Exception) {
                 Result.Error(
                     message = "We could not send your request, try later!"

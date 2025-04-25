@@ -94,26 +94,26 @@ fun InventoryScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = "Ingredient",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.weight(2f)
+                color = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.weight(1.5f)
             )
             Text(
                 text = "Quantity",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.weight(1f)
+                color = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.weight(1.5f)
             )
             Text(
                 text = "Unit",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(48.dp)) // Space for actions
@@ -272,7 +272,8 @@ fun AddInventoryItemDialog(
                 OutlinedTextField(
                     value = ingredientName,
                     onValueChange = { ingredientName = it },
-                    label = { Text("Ingredient Name") },
+                    textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.secondary),
+                    label = { Text("Ingredient Name",  color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -286,7 +287,8 @@ fun AddInventoryItemDialog(
                         quantityText = it
                         validateQuantity(it)
                     },
-                    label = { Text("Quantity") },
+                    label = { Text("Quantity",  color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f)) },
+                    textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.secondary),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     isError = quantityError != null,
@@ -299,7 +301,8 @@ fun AddInventoryItemDialog(
                 OutlinedTextField(
                     value = measurementUnit,
                     onValueChange = { measurementUnit = it },
-                    label = { Text("Measurement Unit") },
+                    label = { Text("Measurement Unit",  color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f)) },
+                    textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.secondary),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )

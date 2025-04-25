@@ -125,7 +125,11 @@ fun App(
                 }
 
                 composable("home") {
-                    WelcomeScreen()
+                    WelcomeScreen(
+                        onOpenRecipe = { recipeId -> 
+                            navController.navigate("recipe_detail/$recipeId")
+                        }
+                    )
 
                     // Optional: Handle system back press in the welcome screen
                     BackHandler {

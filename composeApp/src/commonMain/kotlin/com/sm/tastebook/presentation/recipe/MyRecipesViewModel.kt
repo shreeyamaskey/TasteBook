@@ -80,59 +80,6 @@ class MyRecipesViewModel(
             }
         }
     }
-//    private fun loadMyRecipes() {
-//        viewModelScope.launch {
-//            _state.update { it.copy(isLoading = true) }
-//
-//            try {
-//                dataStore.data.collect { settings ->
-//                    if (settings.token.isNotEmpty() && settings.id > 0) {
-//                        when (val result = recipeRepository.getAllRecipes(settings.token, settings.id)) {
-//                            is Result.Success -> {
-//                                val recipes = result.data.mapNotNull { recipe ->
-//                                    recipe?.let {
-//                                        RecipeUiModel(
-//                                            id = it.recipeId,
-//                                            title = it.recipeTitle,
-//                                            description = it.recipeDesc ?: "",
-//                                            imageUrl = it.imageUrl,
-//                                            ingredients = it.ingredients.map { ingredient ->
-//                                                ingredient.name
-//                                            },
-//                                            instructions = it.preparationSteps?.split("\n") ?: emptyList()
-//                                        )
-//                                    }
-//                                }
-//
-//                                _state.update {
-//                                    it.copy(
-//                                        isLoading = false,
-//                                        recipes = recipes,
-//                                        error = null
-//                                    )
-//                                }
-//                            }
-//                            is Result.Error -> {
-//                                _state.update {
-//                                    it.copy(
-//                                        isLoading = false,
-//                                        error = result.message
-//                                    )
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            } catch (e: Exception) {
-//                _state.update {
-//                    it.copy(
-//                        isLoading = false,
-//                        error = e.message ?: "Unknown error occurred"
-//                    )
-//                }
-//            }
-//        }
-//    }
 
     fun onSaveRecipe(recipeId: Int) {
         viewModelScope.launch {

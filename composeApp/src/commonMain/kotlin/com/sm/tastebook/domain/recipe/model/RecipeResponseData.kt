@@ -1,13 +1,7 @@
 package com.sm.tastebook.domain.recipe.model
 
-import com.sm.tastebook.data.recipe.RecipeResponseData
 import kotlinx.serialization.Serializable
 
-//@Serializable
-//data class RecipeResponse(
-//    val data: RecipeResponseData?,
-//    val errorMessage: String? = null
-//)
 
 @Serializable
 data class RecipeResponseData(

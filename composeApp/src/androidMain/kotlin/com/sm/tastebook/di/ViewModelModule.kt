@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
 import com.sm.tastebook.MainActivityViewModel
 import com.sm.tastebook.data.common.datastore.UserSettingsSerializer
+import com.sm.tastebook.presentation.home.WelcomeViewModel
 import com.sm.tastebook.presentation.inventory.InventoryViewModel
 import com.sm.tastebook.presentation.profile.ProfileViewModel
 import com.sm.tastebook.presentation.recipe.MyRecipesViewModel
@@ -24,7 +25,8 @@ val viewModelModule = module {
     viewModel { InventoryViewModel(get(), get(), get(), get()) }
     viewModel { ProfileViewModel(get()) }
     viewModel { MyRecipesViewModel(get(), get()) }
-    viewModel { RecipeDetailViewModel(get(), get()) }
+    viewModel { RecipeDetailViewModel(get(), get(), get(), get()) }
+    viewModel { WelcomeViewModel(get(), get()) }
 
 
 

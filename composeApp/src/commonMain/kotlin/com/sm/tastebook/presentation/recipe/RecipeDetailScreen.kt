@@ -7,6 +7,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -27,6 +30,31 @@ fun RecipeDetailScreen(
     }
 
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+    var showGroceryList by remember { mutableStateOf(false) }
+
+    // Show grocery list dialog
+    if (showGroceryList && uiState.groceryList.isNotEmpty()) {
+        AlertDialog(
+            onDismissRequest = { showGroceryList = false },
+            title = { Text("Grocery List") },
+            text = {
+                LazyColumn {
+                    items(uiState.groceryList) { item ->
+                        Text(
+                            text = "• $item",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showGroceryList = false }) {
+                    Text("Close")
+                }
+            }
+        )
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -47,21 +75,28 @@ fun RecipeDetailScreen(
 
         item {
             // Publisher Info and Date
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.Start
+                    .padding(bottom = 16.dp)
             ) {
-                Text(
-                    text = "By ${uiState.publisherName}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Text(
-                    text = "• ${uiState.publishDate}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Text(
+                        text = "By ${uiState.publisherName}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Text(
+                        text = "• ${uiState.publishDate}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
             }
         }
 
@@ -78,8 +113,24 @@ fun RecipeDetailScreen(
             )
         }
 
-        // Description
+        // Grocery button and Description
         item {
+
+            // Add the "Check Ingredients" button
+            Button(
+            onClick = { 
+                viewModel.generateGroceryList()
+                showGroceryList = true
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondary
+            )
+            ) {
+                Text("Generate a grocery list")
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+
             Text(
                 text = "Description",
                 style = MaterialTheme.typography.titleLarge,
